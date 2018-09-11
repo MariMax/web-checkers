@@ -1,0 +1,10 @@
+<section class="board">
+  <div *ngFor="let item of topRow; let index = index">{{alphabet[index]}}</div>
+  <div *ngFor="let item of cells; let index = index">
+    <web-checkers-cell
+    [row]="getRow(index)"
+    [column]="getColumn(index)"
+    ></web-checkers-cell>
+  </div>
+  <div *ngFor="let item of topRow; let index = index">{{alphabet[index]}}</div>
+</section>
