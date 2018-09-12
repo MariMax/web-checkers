@@ -11,10 +11,10 @@ export class BoardComponent {
   public cells = new Array(80);
 
   public getRow(index: number): number {
-    return Math.floor(index / 10) % 10
+    return Math.floor(index / 10) % 10;
   }
 
   public getColumn(index: number): number {
-    return index % 10
+    return index % 10;
   }
 }

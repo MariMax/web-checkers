@@ -20,6 +20,7 @@ module.exports = function (config) {
       }
     },
     browsers: ['ChromeHeadless'],
-    singleRun: true
+    singleRun: true,
+    logLevel: config.LOG_INFO
   });
 };

@@ -4,6 +4,7 @@ module.exports = function (config) {
     ...commonConfig,
     autoWatch: true,
     browsers: ['Chrome'],
-    singleRun: false
+    singleRun: false,
+    logLevel: config.LOG_INFO
   });
 };
