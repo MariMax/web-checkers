@@ -22,7 +22,4 @@ describe('AppComponent', () => {
   it('should create the app', async(() => {
     expect(app).toBeTruthy();
   }));
-  it(`should have as title 'web-checkers'`, async(() => {
-    expect(app.title).toEqual('web-checkers');
-  }));
 });
