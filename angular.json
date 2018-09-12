@@ -73,7 +73,7 @@
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "main": "src/test.ts",
-            "karmaConfig": "src/karma.conf.js",
+            "karmaConfig": "src/karma.conf.dev.js",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "scripts": [],
@@ -92,6 +92,11 @@
                 "output": "/"
               }
             ]
+          },
+          "configurations": {
+            "production": {
+              "karmaConfig": "src/karma.conf.prod.js",
+            }
           }
         },
         "lint": {
