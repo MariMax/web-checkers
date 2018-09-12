@@ -1,0 +1,1 @@
+[![Build Status](https://dev.azure.com/mma29121983/mma29121983/_apis/build/status/MariMax.web-checkers)](https://dev.azure.com/mma29121983/mma29121983/_build/latest?definitionId=1)
