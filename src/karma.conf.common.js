@@ -1,3 +1,5 @@
+process.env.CHROME_BIN = require('puppeteer').executablePath();
+
 module.exports = {
     basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
@@ -16,6 +18,18 @@ module.exports = {
       reports: ['html', 'lcovonly'],
       fixWebpackSourcePaths: true
     },
+    customLaunchers: {
+      ChromeHeadless:  {
+        base:   'Chrome',
+        flags:  [
+          '--headless',
+          '--disable-gpu',
+          '--no-sandbox',
+          '--remote-debugging-port=9222'
+        ],
+      }
+    },
+    browsers: ['ChromeHeadless'],
     reporters: ['progress', 'kjhtml'],
     port: 9876,
     colors: true,
