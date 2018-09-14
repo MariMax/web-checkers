@@ -8,9 +8,9 @@ import {Component, Input, ViewChild, ElementRef, ChangeDetectionStrategy} from '
 })
 export class CellComponent {
   @Input()
-  row: number = 0;
+  row = 0;
   @Input()
-  column: number = 0;
+  column = 0;
 
   @ViewChild('wrapper')
   wrapper: ElementRef<HTMLDivElement>;
