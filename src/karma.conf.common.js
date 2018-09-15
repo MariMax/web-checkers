@@ -16,7 +16,13 @@ module.exports = {
     coverageIstanbulReporter: {
       dir: require('path').join(__dirname, '../coverage'),
       reports: ['html', 'lcovonly'],
-      fixWebpackSourcePaths: true
+      fixWebpackSourcePaths: true,
+      thresholds: {
+        statements: 99,
+        branches: 99,
+        functions: 99,
+        lines: 99,
+      }
     },
     customLaunchers: {
       ChromeHeadless:  {
