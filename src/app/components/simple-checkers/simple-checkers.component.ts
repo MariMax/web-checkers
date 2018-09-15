@@ -5,11 +5,5 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './simple-checkers.component.html',
   styleUrls: ['./simple-checkers.component.css']
 })
-export class SimpleCheckersComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
+export class SimpleCheckersComponent {
 }

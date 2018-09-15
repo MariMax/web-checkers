@@ -1,11 +1,33 @@
-import { Component, Input } from '@angular/core';
+import {Component, Input, ViewChild, ElementRef, ChangeDetectionStrategy} from '@angular/core';
 
 @Component({
   selector: 'web-checkers-cell',
   templateUrl: './cell.component.html',
-  styleUrls: ['./cell.component.css']
+  styleUrls: ['./cell.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CellComponent {
-  @Input() row: number;
-  @Input() column: number;
+  @Input()
+  row = 0;
+  @Input()
+  column = 0;
+
+  @ViewChild('wrapper')
+  wrapper: ElementRef<HTMLDivElement>;
+
+  get isBorder(): boolean {
+    return (
+      this.column === 0 ||
+      this.column === 9 ||
+      this.wrapper.nativeElement.children.length > 0
+    );
+  }
+
+  get isBlack(): boolean {
+    return this.isBorder || (this.row + this.column) % 2 === 0;
+  }
+
+  get isWhite(): boolean {
+    return !this.isBorder && (this.row + this.column) % 2 !== 0;
+  }
 }

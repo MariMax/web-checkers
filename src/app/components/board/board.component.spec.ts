@@ -23,13 +23,15 @@ describe('BoardComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => fixture.destroy());
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should generate 80 cells', () => {
+  it('should generate 100 cells', () => {
     const cells = debugElement.queryAll(By.css('web-checkers-cell'));
-    expect(cells.length).toBe(80);
+    expect(cells.length).toBe(100);
   });
 
 });

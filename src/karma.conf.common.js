@@ -1,3 +1,5 @@
+process.env.CHROME_BIN = require('puppeteer').executablePath();
+
 module.exports = {
     basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
@@ -14,8 +16,26 @@ module.exports = {
     coverageIstanbulReporter: {
       dir: require('path').join(__dirname, '../coverage'),
       reports: ['html', 'lcovonly'],
-      fixWebpackSourcePaths: true
+      fixWebpackSourcePaths: true,
+      thresholds: {
+        statements: 99,
+        branches: 99,
+        functions: 99,
+        lines: 99,
+      }
     },
+    customLaunchers: {
+      ChromeHeadless:  {
+        base:   'Chrome',
+        flags:  [
+          '--headless',
+          '--disable-gpu',
+          '--no-sandbox',
+          '--remote-debugging-port=9222'
+        ],
+      }
+    },
+    browsers: ['ChromeHeadless'],
     reporters: ['progress', 'kjhtml'],
     port: 9876,
     colors: true,
