@@ -1,12 +1,16 @@
-<web-checkers-cell *ngFor="let item of topRow; let index = index" [row]="0" [column]="index">
+<web-checkers-pawn-manager class="pawn-manager" *ngIf="size" [size]="size"></web-checkers-pawn-manager>
+
+<web-checkers-cell *ngFor="let item of topRow; let index = index" [isWhite]="true">
   <span>{{alphabet[index]}}</span>
 </web-checkers-cell>
 
-<web-checkers-cell *ngFor="let item of cells; let index = index" [row]="getRow(index)"
-  [column]="getColumn(index)">
+<web-checkers-cell *ngFor="let item of cells; let index = index" 
+  [isWhite]="isWhite(index)"
+  [isBlack]="isBlack(index)"
+>
   {{getText(index)}}
 </web-checkers-cell>
 
-<web-checkers-cell *ngFor="let item of topRow; let index = index" [row]="9" [column]="index">
+<web-checkers-cell *ngFor="let item of topRow; let index = index" [isWhite]="true">
   <span>{{alphabet[index]}}</span>
 </web-checkers-cell>
