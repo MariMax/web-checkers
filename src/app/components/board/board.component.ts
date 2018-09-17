@@ -30,7 +30,9 @@ export class BoardComponent implements AfterViewInit {
   constructor(
     private changeDetector: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private _platformId: Object,
-  ) {}
+  ) {
+    debugger;
+  }
 
   public getRow(index: number): number {
     return Math.floor(index / 10) % 10;

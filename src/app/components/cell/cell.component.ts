@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, ElementRef, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
 
 @Component({
   selector: 'web-checkers-cell',
@@ -7,10 +7,6 @@ import {Component, Input, ViewChild, ElementRef, ChangeDetectionStrategy} from '
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CellComponent {
-  @Input()
-  row = 0;
-  @Input()
-  column = 0;
   @Input()
   isBlack = false;
   @Input()
