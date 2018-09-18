@@ -65,7 +65,9 @@ export class BoardComponent implements AfterViewInit, OnDestroy {
   public isBlack(index): boolean {
     const row = this.getRow(index);
     const column = this.getColumn(index);
-    if (column === 0 || column === 9) return false;
+    if (column === 0 || column === 9) {
+      return false;
+    }
     return (row + column) % 2 === 0;
   }
 
@@ -74,7 +76,9 @@ export class BoardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    if (!this.platformService.isBrowser) return;
+    if (!this.platformService.isBrowser) {
+      return;
+    }
     this.resizeHandler();
     this.resizeSubscription = fromEvent(this.window, 'resize')
       .pipe(throttleTime(50))
