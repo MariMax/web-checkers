@@ -7,6 +7,8 @@ import { SimpleCheckersComponent } from './components/simple-checkers/simple-che
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { BoardComponent } from './components/board/board.component';
 import { CellComponent } from './components/cell/cell.component';
+import { PawnComponent } from './pawn/pawn.component';
+import { PawnManagerComponent } from './pawn-manager/pawn-manager.component';
 
 @NgModule({
   declarations: [
@@ -14,7 +16,9 @@ import { CellComponent } from './components/cell/cell.component';
     SimpleCheckersComponent,
     ToolbarComponent,
     BoardComponent,
-    CellComponent
+    CellComponent,
+    PawnComponent,
+    PawnManagerComponent
   ],
   imports: [
     BrowserModule.withServerTransition({appId: 'web-checkers'}),

@@ -1,0 +1,13 @@
+.pawn {
+  border-radius: 50%;
+  overflow: hidden;
+  width: var(--size, 100px);
+  height: var(--size, 100px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px 2px #999;
+  position: absolute;
+  left: var(--left, 0);
+  top: var(--top, 0);
+}

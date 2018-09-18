@@ -10,4 +10,10 @@
   grid-template-columns: 1.5rem repeat(8, 1fr) 1.5rem;
   border-radius: 5px;
   overflow: hidden;
+  position: relative;
+}
+
+.pawn-manager {
+  top: 1.5rem;
+  left: 1.5rem;
 }
