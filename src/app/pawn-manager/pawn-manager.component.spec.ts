@@ -42,8 +42,15 @@ describe('PawnManagerComponent', () => {
   });
   
   it('should generate 12 black pawns', () => {
-    expect(component.blackItems.length).toBe(12);
-    expect(component.blackItems.every( i => i.color === 'black')).toBe(true);
+    expect(component.pawns.length).toBe(24);
+    let blackCount = 0;
+    let whiteCount = 0;
+    component.pawns.forEach(i => {
+      if (i.color === 'black') return blackCount++;
+      whiteCount++;
+    });
+    expect(blackCount).toBe(12);
+    expect(whiteCount).toBe(12);
   });
 
   it('should have default size 100px', () => {
@@ -56,5 +63,15 @@ describe('PawnManagerComponent', () => {
     const pawnManagerComponent = f.debugElement.query(By.css('web-checkers-pawn-manager'));
     expect(pawnManagerComponent).not.toBeNull();
     expect(pawnManagerComponent.componentInstance.size).toBe(f.componentInstance.size);
+  });
+
+  it('should adjust pawn sizes on change size input', async () => {
+    const f = TestBed.createComponent(HostComponent);
+    await f.detectChanges();
+    f.componentInstance.size = '100px';
+    const pawnManagerComponent = f.debugElement.query(By.css('web-checkers-pawn-manager'));
+    const adjustSpy = spyOn((pawnManagerComponent.componentInstance as any), 'adjustPawnPosition');
+    await f.detectChanges();
+    expect(adjustSpy).toHaveBeenCalled();
   })
 });

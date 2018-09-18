@@ -1,32 +1,8 @@
 <div class="pawn" #pawn>
   <svg width="200px" height="200px" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
-    <defs>
-      <radialGradient id="rg" cx="0.5" cy="0.5" r="0.05" spreadMethod="reflect">
-        <stop offset="0" stop-color="currentColor" stop-opacity=".8"></stop>
-        <stop offset="100%" stop-color="black"></stop>
-      </radialGradient>
-      <filter id="sazanamiF" filterUnits="userSpaceOnUse" x="0" y="0" width="200"
-        height="200">
-        <feGaussianBlur stdDeviation="1" result="blur" x="0" y="0" width="200"
-          height="200" />
-        <feDiffuseLighting in="blur" lighting-color="white" surfaceScale="100"
-          diffuseConstant="0.8" result="lighten" x="0" y="0" width="200" height="200">
-          <feDistantLight azimuth="-40" elevation="80" />
-        </feDiffuseLighting>
-        <feDisplacementMap in="SourceGraphic" in2="blur" scale="1" result="displacement"
-          x="0" y="0" width="200" height="200" />
-        <feBlend in="lighten" in2="displacement" mode="screen" x="0" y="0"
-          width="200" height="200" />
-      </filter>
-
-      <g id="wave">
-        <rect width="200" height="200" fill="url(#rg)" />
-      </g>
-    </defs>
-
-    <g filter="url(#sazanamiF)" fill="currentColor">
-      <use x="0" y="0" xlink:href="#wave" fill="black" />
+    <g filter="url(#sazanamiF)">
+      <use x="0" y="0" [attr.xlink:href]="pawnColor" />
     </g>
   </svg>
 </div>

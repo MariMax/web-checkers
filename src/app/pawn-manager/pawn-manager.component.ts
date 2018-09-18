@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy, OnChanges, SimpleChanges } from '@angular/core';
 import { Pawn } from '../data-structures/pawn/pawn';
 
 @Component({
@@ -7,7 +7,7 @@ import { Pawn } from '../data-structures/pawn/pawn';
   styleUrls: ['./pawn-manager.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PawnManagerComponent implements OnInit {
+export class PawnManagerComponent implements OnInit, OnChanges {
   private _size = '100px';
   @Input()
   public set size(value: string) {
@@ -17,18 +17,47 @@ export class PawnManagerComponent implements OnInit {
     return this._size;
   }
 
-  public blackItems: Pawn[] = [];
+  public pawns: Pawn[] = [];
+
+  private adjustPawnPosition(pawn: Pawn): Pawn {
+    const col = pawn.currentCol;
+    const row = pawn.currentRow;
+    const left = parseFloat(this.size)* col;
+    const top = parseFloat(this.size) * row;
+    pawn.left = `${left}px`;
+    pawn.top = `${top}px`;
+    return pawn;
+  }
+
+  private createPawn(color: string, row: number, col: number) {
+    const pawn = new Pawn();
+    pawn.color = color;
+    pawn.currentCol = col;
+    pawn.currentRow = row;
+    return this.adjustPawnPosition(pawn);
+  }
+
+  private generateDefaultState(startRow: number, color: string): Pawn[] {
+    const pawns: Pawn[] = [];
+    for(let i = 0; i < 12; i++) {
+      const row = ((i / 4) | 0) + startRow;
+      const column = ((i%4) * 2 + 1 - row % 2);
+      pawns.push(this.createPawn(color, row, column));
+    }
+
+    return pawns;
+  }
 
   ngOnInit() {
-    for(let i = 0; i < 12; i++) {
-      const pawn = new Pawn();
-      pawn.color = 'black';
-      const row = (i / 4) | 0;
-      const left = parseFloat(this.size)*((i%4) * 2 + 1 - row % 2);
-      pawn.left = `${left}px`;
-      const top = parseFloat(this.size) * ( row )
-      pawn.top = `${top}px`;
-      this.blackItems.push(pawn);
+    this.pawns = [
+      ...this.generateDefaultState(0, 'black'),
+      ...this.generateDefaultState(5, 'white')
+    ]
+  }
+
+  ngOnChanges(simpleChanges: SimpleChanges) {
+    if (simpleChanges.size && !simpleChanges.size.firstChange) {
+      this.pawns.forEach(i => this.adjustPawnPosition(i));
     }
   }
 }

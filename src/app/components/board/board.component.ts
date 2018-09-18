@@ -7,10 +7,13 @@ import {
   QueryList,
   ElementRef,
   ChangeDetectorRef,
-  PLATFORM_ID,
   Inject,
+  OnDestroy,
 } from '@angular/core';
-import {isPlatformBrowser} from '@angular/common';
+import {WINDOW} from '../../services/window-injector/window-injector.service';
+import {PlatformService} from '../../services/platform/platform.service';
+import {Subscription, fromEvent} from 'rxjs';
+import {throttleTime} from 'rxjs/operators';
 
 @Component({
   selector: 'web-checkers-board',
@@ -18,7 +21,7 @@ import {isPlatformBrowser} from '@angular/common';
   styleUrls: ['./board.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BoardComponent implements AfterViewInit {
+export class BoardComponent implements AfterViewInit, OnDestroy {
   @ViewChildren(CellComponent, {read: ElementRef})
   cellsInstances: QueryList<ElementRef>;
 
@@ -26,12 +29,20 @@ export class BoardComponent implements AfterViewInit {
   public topRow = new Array(10);
   public cells = new Array(80);
   public size: string = null;
+  private resizeSubscription: Subscription;
 
   constructor(
     private changeDetector: ChangeDetectorRef,
-    @Inject(PLATFORM_ID) private _platformId: Object,
+    private platformService: PlatformService,
+    @Inject(WINDOW) private window: Window,
   ) {
-    debugger;
+    this.resizeHandler = this.resizeHandler.bind(this);
+  }
+
+  ngOnDestroy() {
+    if (this.resizeSubscription) {
+      this.resizeSubscription.unsubscribe();
+    }
   }
 
   public getRow(index: number): number {
@@ -63,7 +74,18 @@ export class BoardComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    if (!isPlatformBrowser(this._platformId)) return;
+    if (!this.platformService.isBrowser) return;
+    this.resizeHandler();
+    this.resizeSubscription = fromEvent(this.window, 'resize')
+      .pipe(throttleTime(50))
+      .subscribe(this.resizeHandler);
+  }
+
+  private resizeHandler() {
+    this.calcCellDimentions();
+  }
+
+  private calcCellDimentions() {
     const first = this.cellsInstances.first.nativeElement.getBoundingClientRect();
     let dimentions;
     const biggest = this.cellsInstances.find((i: ElementRef) => {

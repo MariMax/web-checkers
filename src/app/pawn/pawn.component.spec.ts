@@ -9,7 +9,7 @@ import { By } from '@angular/platform-browser';
   template: '<!-- empty --> ',
 })
 export class PawnComponentMock extends PawnComponent {
-  ngAfterViewInit() {}
+  ngOnChanges() {}
 }
 
 @Component({
@@ -61,6 +61,6 @@ describe('PawnComponent', () => {
     fixture.componentInstance.top = '15px';
     fixture.componentInstance.size = '20px';
     await fixture.detectChanges();
-    expect(pawn.componentInstance.pawn.nativeElement.style.cssText).toBe('--size: 200px; --left: 0%; --top: 0%;');
+    expect(pawn.componentInstance.pawn.nativeElement.style.cssText).toBe('--size: 20px; --left: 10px; --top: 15px;');
   });
 });

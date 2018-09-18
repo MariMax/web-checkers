@@ -5,12 +5,13 @@ import {BoardComponent} from './board.component';
 import {By} from '@angular/platform-browser';
 import {PawnManagerComponentMock} from '../../pawn-manager/pawn-manager.component.spec';
 import { ServerTestingModule, platformServerTesting } from '@angular/platform-server/testing';
+import { PlatformService } from '../../services/platform/platform.service';
 
 describe('BoardComponent', () => {
   let component: BoardComponent;
   let fixture: ComponentFixture<BoardComponent>;
   let debugElement: DebugElement;
-  let isBrowser;
+  let platformService: PlatformService;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -22,7 +23,7 @@ describe('BoardComponent', () => {
     fixture = TestBed.createComponent(BoardComponent);
     component = fixture.componentInstance;
     debugElement = fixture.debugElement;
-    fixture.detectChanges();
+    platformService = TestBed.get(PlatformService);
   });
 
   afterEach(() => fixture.destroy());
@@ -32,37 +33,15 @@ describe('BoardComponent', () => {
   });
 
   it('should generate 100 cells', () => {
+    fixture.detectChanges();
     const cells = debugElement.queryAll(By.css('web-checkers-cell'));
     expect(cells.length).toBe(100);
   });
-});
 
-describe(`server version`, () => {
-  let component: BoardComponent;
-  let fixture: ComponentFixture<BoardComponent>;
-
-  beforeEach(async(() => {
-    TestBed
-    .configureTestingModule({
-      declarations: [BoardComponent, CellComponent, PawnManagerComponentMock],
-    })
-    .overrideComponent(BoardComponent, {
-      set: {
-        providers: [
-          {provide: PLATFORM_ID, useValue: 'server'}
-        ]
-      }
-    })
-    .compileComponents();
-  }));
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(BoardComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it(`should not try to read sizes if it's not a browser platform`, () => {
+  it(`should not try to read sizes if it's not a browser platform`, async () => {
+    platformService.isBrowser = false;
+    await fixture.detectChanges();
     expect(component.size).toBeNull();
   });
+
 });
