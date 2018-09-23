@@ -5,6 +5,9 @@ import { DebugElement, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;
   let app: AppComponent;
+  let instance;
+  let initGameSpy;
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [
@@ -17,9 +20,18 @@ describe('AppComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(AppComponent);
     app = fixture.debugElement.componentInstance;
+    instance = app as any;
+    initGameSpy = spyOn(instance.gameManager, 'initGame');
   })
   afterEach(() => fixture.destroy())
   it('should create the app', async(() => {
     expect(app).toBeTruthy();
   }));
+
+  it('should init the game', async () => {
+    expect(app).toBeTruthy();
+    await fixture.detectChanges();
+    expect(initGameSpy).toHaveBeenCalled();
+  });
+
 });

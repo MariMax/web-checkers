@@ -1,3 +1,4 @@
+import { HALF_BOARD_SIZE, GameManagerService } from './../services/game-manager/game-manager.service';
 import {
   Component,
   OnInit,
@@ -7,6 +8,8 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import {Pawn} from '../data-structures/pawn/pawn';
+import { MAX_NUMBER_OF_PAWNS } from '../services/game-manager/game-manager.service';
+import { PawnTypes } from '../services/game-manager/pawn-types.enum';
 
 @Component({
   selector: 'web-checkers-pawn-manager',
@@ -26,6 +29,9 @@ export class PawnManagerComponent implements OnInit, OnChanges {
 
   public pawns: Pawn[] = [];
 
+  constructor(private gameManager: GameManagerService) {
+  }
+
   private adjustPawnPosition(pawn: Pawn): Pawn {
     const col = pawn.currentCol;
     const row = pawn.currentRow;
@@ -36,30 +42,22 @@ export class PawnManagerComponent implements OnInit, OnChanges {
     return pawn;
   }
 
-  private createPawn(color: string, row: number, col: number) {
-    const pawn = new Pawn();
-    pawn.color = color;
-    pawn.currentCol = col;
-    pawn.currentRow = row;
-    return this.adjustPawnPosition(pawn);
-  }
-
-  private generateDefaultState(startRow: number, color: string): Pawn[] {
-    const pawns: Pawn[] = [];
-    for (let i = 0; i < 12; i++) {
-      const row = (Math.floor(i / 4)) + startRow;
-      const column = (i % 4) * 2 + 1 - (row % 2);
-      pawns.push(this.createPawn(color, row, column));
-    }
-
-    return pawns;
-  }
-
   ngOnInit() {
-    this.pawns = [
-      ...this.generateDefaultState(0, 'black'),
-      ...this.generateDefaultState(5, 'white'),
-    ];
+    const locations = this.gameManager.getPawnLocations();
+    this.pawns = locations
+    .map(i => {
+      const type = this.gameManager.getPawnTypeAtLocation(i.x, i.y);
+      if (type === PawnTypes.NONE) {
+        return null;
+      }
+      const pawn = new Pawn();
+      pawn.color = [PawnTypes.PL1_PAWN, PawnTypes.PL1_QUEEN].includes(type) ? 'white' : 'black';
+      pawn.currentCol = i.x;
+      pawn.currentRow = i.y;
+      pawn.type = type;
+      return this.adjustPawnPosition(pawn);
+    })
+    .filter(i => i !== null);
   }
 
   ngOnChanges(simpleChanges: SimpleChanges) {

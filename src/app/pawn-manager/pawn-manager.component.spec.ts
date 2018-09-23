@@ -1,8 +1,11 @@
+import { Pawn } from './../data-structures/pawn/pawn';
+import { GameManagerService } from './../services/game-manager/game-manager.service';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component } from '@angular/core';
 import { PawnManagerComponent } from './pawn-manager.component';
 import { PawnComponentMock } from '../pawn/pawn.component.spec';
 import { By } from '@angular/platform-browser';
+import { PawnTypes } from '../services/game-manager/pawn-types.enum';
 
 @Component({
   selector: 'web-checkers-pawn-manager',
@@ -21,6 +24,7 @@ class HostComponent {
 describe('PawnManagerComponent', () => {
   let component: PawnManagerComponent;
   let fixture: ComponentFixture<PawnManagerComponent>;
+  let gameManager: GameManagerService;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -30,9 +34,9 @@ describe('PawnManagerComponent', () => {
   }));
 
   beforeEach(() => {
+    gameManager = TestBed.get(GameManagerService);
     fixture = TestBed.createComponent(PawnManagerComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   afterEach(() => fixture.destroy());
@@ -41,16 +45,29 @@ describe('PawnManagerComponent', () => {
     expect(component).toBeTruthy();
   });
   
-  it('should generate 12 black pawns', () => {
-    expect(component.pawns.length).toBe(24);
+  it('should get pawns locations from gameManager and generate them based on types', () => {
+    const getLocationsSpy = spyOn(gameManager, 'getPawnLocations').and.returnValue([
+      {x: 1, y: 0},
+      {x: 0, y: 7},
+      {x: 3, y: 1}
+    ]);
+    const getPawnTypeSpy = spyOn(gameManager, 'getPawnTypeAtLocation').and.callFake((x, y) => {
+      switch (x) {
+        case 1: return PawnTypes.PL1_PAWN;
+        case 0: return PawnTypes.PL2_PAWN;
+        default: return PawnTypes.NONE;
+      }
+    });
+    fixture.detectChanges();
+    expect(component.pawns.length).toBe(2);
     let blackCount = 0;
     let whiteCount = 0;
     component.pawns.forEach(i => {
       if (i.color === 'black') return blackCount++;
       whiteCount++;
     });
-    expect(blackCount).toBe(12);
-    expect(whiteCount).toBe(12);
+    expect(blackCount).toBe(1);
+    expect(whiteCount).toBe(1);
   });
 
   it('should have default size 100px', () => {
@@ -70,6 +87,7 @@ describe('PawnManagerComponent', () => {
     await f.detectChanges();
     f.componentInstance.size = '100px';
     const pawnManagerComponent = f.debugElement.query(By.css('web-checkers-pawn-manager'));
+    pawnManagerComponent.componentInstance.pawns = [new Pawn()];
     const adjustSpy = spyOn((pawnManagerComponent.componentInstance as any), 'adjustPawnPosition');
     await f.detectChanges();
     expect(adjustSpy).toHaveBeenCalled();
