@@ -24,7 +24,11 @@ describe('GameManagerService', () => {
 
   it('should always allow selection', () => {
     const service: GameManagerService = TestBed.get(GameManagerService);
-    expect(service.isSelectionAllowed()).toBeTruthy();
+    expect(service.isSelectionAllowed(PawnTypes.NONE)).toBeTruthy();
+    expect(service.isSelectionAllowed(PawnTypes.PL1_PAWN)).toBeTruthy();
+    expect(service.isSelectionAllowed(PawnTypes.PL1_QUEEN)).toBeTruthy();
+    expect(service.isSelectionAllowed(PawnTypes.PL2_PAWN)).toBeTruthy();
+    expect(service.isSelectionAllowed(PawnTypes.PL2_QUEEN)).toBeTruthy();
   });
 
   it('should generate correct initial state', () => {

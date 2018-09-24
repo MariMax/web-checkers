@@ -91,5 +91,66 @@ describe('PawnManagerComponent', () => {
     const adjustSpy = spyOn((pawnManagerComponent.componentInstance as any), 'adjustPawnPosition');
     await f.detectChanges();
     expect(adjustSpy).toHaveBeenCalled();
-  })
+  });
+
+  describe('onClick should get cell coordinates and select a pawn if possible', () => {
+    let fixt: ComponentFixture<HostComponent>;
+    let pawnManagerComponent;
+    beforeEach(() => {
+      fixt = TestBed.createComponent(HostComponent);
+      fixt.componentInstance.size = '100px';
+      fixt.detectChanges();
+
+      pawnManagerComponent = fixt.debugElement.query(By.css('web-checkers-pawn-manager'));
+    });
+    it('should get click coordinates and ask gameManager if there is a pawn', async () => {
+      const getPawnTypeSpy = spyOn(gameManager, 'getPawnTypeAtLocation');
+      pawnManagerComponent.triggerEventHandler('click', {
+        offsetX: 150,
+        offsetY: 50
+      });
+      expect(getPawnTypeSpy).toHaveBeenCalledWith(1, 0);
+    });
+
+    it('if there is no pawn selectedPawn should be null', async () => {
+      spyOn(gameManager, 'getPawnTypeAtLocation').and.returnValue(PawnTypes.NONE);
+      const isSelectionAllowed = spyOn(gameManager, 'isSelectionAllowed');
+      pawnManagerComponent.triggerEventHandler('click', {});
+      expect(isSelectionAllowed).not.toHaveBeenCalled();
+      expect((pawnManagerComponent.componentInstance as any).selectedPawn).toBeNull();
+    });
+
+    it('if selection is not allowed selectedPawn should be null', async () => {
+      spyOn(gameManager, 'getPawnTypeAtLocation').and.returnValue(PawnTypes.NONE);
+      const isSelectionAllowed = spyOn(gameManager, 'isSelectionAllowed');
+      pawnManagerComponent.triggerEventHandler('click', {});
+      expect(isSelectionAllowed).not.toHaveBeenCalled();
+      expect((pawnManagerComponent.componentInstance as any).selectedPawn).toBeNull();
+    });
+
+    it('if there is a pawn should ask gameManager permission to select', async () => {
+      spyOn(gameManager, 'getPawnTypeAtLocation').and.returnValue(PawnTypes.PL1_PAWN);
+      const isSelectionAllowed = spyOn(gameManager, 'isSelectionAllowed').and.returnValue(true);
+      pawnManagerComponent.triggerEventHandler('click', {});
+      expect(isSelectionAllowed).toHaveBeenCalledWith(PawnTypes.PL1_PAWN);
+    });
+
+    it('if there is a pawn and permission to select should find it and select it', async () => {
+      spyOn(gameManager, 'getPawnTypeAtLocation').and.returnValue(PawnTypes.PL1_PAWN);
+      const pawn = new Pawn();
+      pawn.type = PawnTypes.PL1_PAWN;
+      pawn.currentCol = 0;
+      pawn.currentRow = 7;
+      (pawnManagerComponent.componentInstance as any).pawns.push(pawn);
+      const isSelectionAllowed = spyOn(gameManager, 'isSelectionAllowed').and.returnValue(true);
+      pawnManagerComponent.triggerEventHandler('click', {
+        offsetX: 50,
+        offsetY: 750
+      });
+      expect((pawnManagerComponent.componentInstance as any).selectedPawn).toBe(pawn);
+    });
+
+
+  });
+
 });

@@ -1,38 +1,55 @@
 <svg width="0" height="0" viewBox="0 0 0 0" style="position: absolute;" xmlns="http://www.w3.org/2000/svg"
-xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
-<defs>
-  <radialGradient id="rg-white" cx="0.5" cy="0.5" r="0.05" spreadMethod="reflect">
-    <stop offset="0" stop-color="white" stop-opacity=".8" />
-    <stop offset="100%" stop-color="black"></stop>
-  </radialGradient>
-  <radialGradient id="rg-black" cx="0.5" cy="0.5" r="0.05" spreadMethod="reflect">
-    <stop offset="0" stop-color="black" stop-opacity=".8" />
-    <stop offset="100%" stop-color="black"></stop>
-  </radialGradient>
-  <filter id="sazanamiF" filterUnits="userSpaceOnUse" x="0" y="0" width="200"
-    height="200">
-    <feGaussianBlur stdDeviation="1" result="blur" x="0" y="0" width="200"
-      height="200" />
-    <feDiffuseLighting in="blur" lighting-color="white" surfaceScale="100"
-      diffuseConstant="0.8" result="lighten" x="0" y="0" width="200" height="200">
-      <feDistantLight azimuth="-40" elevation="80" />
-    </feDiffuseLighting>
-    <feDisplacementMap in="SourceGraphic" in2="blur" scale="1" result="displacement"
-      x="0" y="0" width="200" height="200" />
-    <feBlend in="lighten" in2="displacement" mode="screen" x="0" y="0"
-      width="200" height="200" />
-  </filter>
+  xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
+  <defs>
+    <radialGradient id="rg-white" cx="0.5" cy="0.5" r="0.05" spreadMethod="reflect">
+      <stop offset="0" stop-color="white" stop-opacity=".8" />
+      <stop offset="100%" stop-color="black"></stop>
+    </radialGradient>
+    <radialGradient id="rg-black" cx="0.5" cy="0.5" r="0.05" spreadMethod="reflect">
+      <stop offset="0" stop-color="black" stop-opacity=".8" />
+      <stop offset="100%" stop-color="black"></stop>
+    </radialGradient>
+    <radialGradient id="rg-blue" cx="0.5" cy="0.5" r="0.05" spreadMethod="reflect">
+      <stop offset="0" stop-color="blue" stop-opacity=".8" />
+      <stop offset="100%" stop-color="black"></stop>
+    </radialGradient>
+    <radialGradient id="rg-green" cx="0.5" cy="0.5" r="0.05" spreadMethod="reflect">
+      <stop offset="0" stop-color="green" stop-opacity=".8" />
+      <stop offset="100%" stop-color="black"></stop>
+    </radialGradient>
 
-  <g id="wave-white">
-    <rect width="200" height="200" fill="url(#rg-white)" />
-  </g>
-  <g id="wave-black">
-    <rect width="200" height="200" fill="url(#rg-black)" />
-  </g>
-</defs>
+
+    <filter id="sazanamiF" filterUnits="userSpaceOnUse" x="0" y="0" width="200"
+      height="200">
+      <feGaussianBlur stdDeviation="1" result="blur" x="0" y="0" width="200"
+        height="200" />
+      <feDiffuseLighting in="blur" lighting-color="white" surfaceScale="100"
+        diffuseConstant="0.8" result="lighten" x="0" y="0" width="200" height="200">
+        <feDistantLight azimuth="-40" elevation="80" />
+      </feDiffuseLighting>
+      <feDisplacementMap in="SourceGraphic" in2="blur" scale="1" result="displacement"
+        x="0" y="0" width="200" height="200" />
+      <feBlend in="lighten" in2="displacement" mode="screen" x="0" y="0" width="200"
+        height="200" />
+    </filter>
+
+    <g id="wave-white">
+      <rect width="200" height="200" fill="url(#rg-white)" />
+    </g>
+    <g id="wave-black">
+      <rect width="200" height="200" fill="url(#rg-black)" />
+    </g>
+    <g id="wave-blue">
+      <rect width="200" height="200" fill="url(#rg-blue)" />
+    </g>
+    <g id="wave-green">
+      <rect width="200" height="200" fill="url(#rg-green)" />
+    </g>
+  </defs>
 </svg>
 
 
 <ng-container *ngFor="let item of pawns">
-  <web-checkers-pawn [color]="item.color" [size]="size" [left]="item.left" [top]="item.top"></web-checkers-pawn>
+  <web-checkers-pawn [isSelected]="isSelected(item)" [color]="item.color" [size]="size"
+    [left]="item.left" [top]="item.top"></web-checkers-pawn>
 </ng-container>

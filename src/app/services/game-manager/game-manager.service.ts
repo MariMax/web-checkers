@@ -20,7 +20,7 @@ export class GameManagerService {
     }
   }
 
-  public isSelectionAllowed() {
+  public isSelectionAllowed(pawnType: PawnTypes): boolean {
     return true;
   }
 

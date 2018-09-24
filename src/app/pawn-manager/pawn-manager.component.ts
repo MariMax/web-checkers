@@ -6,6 +6,9 @@ import {
   ChangeDetectionStrategy,
   OnChanges,
   SimpleChanges,
+  HostBinding,
+  HostListener,
+  ChangeDetectorRef,
 } from '@angular/core';
 import {Pawn} from '../data-structures/pawn/pawn';
 import { MAX_NUMBER_OF_PAWNS } from '../services/game-manager/game-manager.service';
@@ -28,8 +31,10 @@ export class PawnManagerComponent implements OnInit, OnChanges {
   }
 
   public pawns: Pawn[] = [];
+  private selectedPawn: Pawn = null;
 
-  constructor(private gameManager: GameManagerService) {
+  constructor(private gameManager: GameManagerService,
+              private changeDetector: ChangeDetectorRef) {
   }
 
   private adjustPawnPosition(pawn: Pawn): Pawn {
@@ -64,5 +69,24 @@ export class PawnManagerComponent implements OnInit, OnChanges {
     if (simpleChanges.size && !simpleChanges.size.firstChange) {
       this.pawns.forEach(i => this.adjustPawnPosition(i));
     }
+  }
+
+  @HostListener('click', ['$event'])
+  private onClick(event: MouseEvent) {
+    const col = Math.floor(event.offsetX / parseFloat(this.size));
+    const row = Math.floor(event.offsetY / parseFloat(this.size));
+    const pawnType = this.gameManager.getPawnTypeAtLocation(col, row);
+    if (pawnType !== PawnTypes.NONE && this.gameManager.isSelectionAllowed(pawnType)) {
+      this.selectedPawn = this.pawns.find(i => i.type === pawnType && i.currentCol === col && i.currentRow === row);
+      this.changeDetector.detectChanges();
+      return;
+    }
+    this.selectedPawn = null;
+    console.log(col, row, pawnType);
+    this.changeDetector.detectChanges();
+  }
+
+  public isSelected(pawn: Pawn) {
+    return this.selectedPawn === pawn;
   }
 }

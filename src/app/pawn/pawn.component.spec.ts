@@ -18,6 +18,8 @@ export class PawnComponentMock extends PawnComponent {
                 [top]="top" 
                 [left]="left"
                 [color]="color"
+                [isSelected]="isSelected"
+                [isAvailableToMove]="isAvailableToMove"
                 ></web-checkers-pawn>`,
 })
 class HostComponent {
@@ -25,6 +27,8 @@ class HostComponent {
   public top = '0%';
   public left = '0%';
   public color = 'black';
+  public isSelected = false;
+  public isAvailableToMove = false;
 }
 
 
@@ -63,4 +67,33 @@ describe('PawnComponent', () => {
     await fixture.detectChanges();
     expect(pawn.componentInstance.pawn.nativeElement.style.cssText).toBe('--size: 20px; --left: 10px; --top: 15px;');
   });
+
+  it('should have blue tint when selected', async () => {
+    expect(fixture).toBeTruthy();
+    fixture.componentInstance.isSelected = true;
+    await fixture.detectChanges();
+    const pawn = fixture.debugElement.query(By.css('web-checkers-pawn'));
+    expect(pawn).not.toBeNull();
+    expect(pawn.componentInstance.getTint()).toBe('#wave-blue');
+  });
+
+  it('isSelected should have bigger priority than isAvailableToMove', async () => {
+    expect(fixture).toBeTruthy();
+    fixture.componentInstance.isSelected = true;
+    fixture.componentInstance.isAvailableToMove = true;
+    await fixture.detectChanges();
+    const pawn = fixture.debugElement.query(By.css('web-checkers-pawn'));
+    expect(pawn).not.toBeNull();
+    expect(pawn.componentInstance.getTint()).toBe('#wave-blue');
+  });
+
+  it('should have green tint when available to move', async () => {
+    expect(fixture).toBeTruthy();
+    fixture.componentInstance.isAvailableToMove = true;
+    await fixture.detectChanges();
+    const pawn = fixture.debugElement.query(By.css('web-checkers-pawn'));
+    expect(pawn).not.toBeNull();
+    expect(pawn.componentInstance.getTint()).toBe('#wave-green');
+  });
+
 });

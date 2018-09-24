@@ -1,4 +1,5 @@
 :host {
+  --border-size: 1.5rem;
   margin: 1rem auto;
   width: calc(100vw - 2rem);
   height: calc(100vw - 2rem);
@@ -6,14 +7,16 @@
   max-height: calc(100vh - 6rem);
   max-width: calc(100vh - 6rem);
   display: grid;
-  grid-template-rows: 1.5rem repeat(8, 1fr) 1.5rem;
-  grid-template-columns: 1.5rem repeat(8, 1fr) 1.5rem;
+  grid-template-rows: var(--border-size, 1.5rem) repeat(8, 1fr) var(--border-size, 1.5rem);
+  grid-template-columns: var(--border-size, 1.5rem) repeat(8, 1fr) var(--border-size, 1.5rem);
   border-radius: 5px;
   overflow: hidden;
   position: relative;
 }
 
 .pawn-manager {
-  top: 1.5rem;
-  left: 1.5rem;
+  top: var(--border-size, 1.5rem);
+  left: var(--border-size, 1.5rem);
+  bottom: var(--border-size, 1.5rem);
+  right: var(--border-size, 1.5rem);
 }
