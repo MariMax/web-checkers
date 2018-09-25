@@ -1,6 +1,8 @@
+import {ActivePlayer} from './active-player.enum';
 import {Injectable} from '@angular/core';
 import {PawnTypes} from './pawn-types.enum';
 import {Position} from './position';
+import {Subject, Subscription, timer, Observable, PartialObserver} from 'rxjs';
 
 export const BOARD_SIZE = 8;
 export const HALF_BOARD_SIZE = 4;
@@ -11,6 +13,11 @@ export const MAX_NUMBER_OF_PAWNS = 12;
 })
 export class GameManagerService {
   private boardState: PawnTypes[] = [];
+  private turnChange = new Subject<void>();
+  private activePlayer: ActivePlayer;
+  private timer: Observable<number>;
+  private timerSubscription = new Subscription();
+  private allSubscriptions: Subscription[] = [];
 
   constructor() {
     for (let i = 0; i < BOARD_SIZE; i++) {
@@ -18,10 +25,17 @@ export class GameManagerService {
         this.boardState.push(PawnTypes.NONE);
       }
     }
+    this.activePlayer = ActivePlayer.PLAYER1;
   }
 
   public isSelectionAllowed(pawnType: PawnTypes): boolean {
-    return true;
+    if (this.activePlayer === ActivePlayer.PLAYER1) {
+      return (
+        pawnType === PawnTypes.PL1_PAWN || pawnType === PawnTypes.PL1_QUEEN
+      );
+    }
+    //this is PLAYER2
+    return pawnType === PawnTypes.PL2_PAWN || pawnType === PawnTypes.PL2_QUEEN;
   }
 
   public getPawnTypeAtLocation(x: number, y: number): PawnTypes {
@@ -56,5 +70,24 @@ export class GameManagerService {
         return null;
       })
       .filter(i => i !== null);
+  }
+
+  public subscribeOnTurnChange(fn: () => void): Subscription {
+    if (!this.timer || this.timerSubscription.closed) {
+      this.timerSubscription = new Subscription();
+      this.timer = timer(0, 2000);
+      this.timerSubscription.add(this.timer.subscribe(() => this.turnChange.next()));
+    }
+    const s = this.timer.subscribe(fn);
+    this.allSubscriptions.push(s);
+    const s2 = this.timerSubscription.add(() => {
+      s.unsubscribe();
+      this.timerSubscription.remove(s2);
+      this.allSubscriptions = this.allSubscriptions.filter(i => i !== s);
+      if (this.allSubscriptions.length === 0) {
+        this.timerSubscription.unsubscribe();
+      }
+    });
+    return s2;
   }
 }

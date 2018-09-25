@@ -1,10 +1,23 @@
+import { ActivePlayer } from './active-player.enum';
 import { PawnTypes } from './pawn-types.enum';
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick as _tick } from '@angular/core/testing';
 
 import { GameManagerService, BOARD_SIZE } from './game-manager.service';
+import { asyncScheduler } from 'rxjs';
 
 describe('GameManagerService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}));
+  let tick: (milliseconds: number) => void;
+
+  beforeEach(() => {
+    let fakeNow = 0;
+    tick = milliseconds => {
+      fakeNow += milliseconds;
+      _tick(milliseconds);
+    };
+    asyncScheduler.now = () => fakeNow;
+  });
+
+  afterEach(() => delete asyncScheduler.now)
 
   it('should be created', () => {
     const service: GameManagerService = TestBed.get(GameManagerService);
@@ -22,11 +35,19 @@ describe('GameManagerService', () => {
     expect(flattenBoard.every(i => i === PawnTypes.NONE));
   });
 
-  it('should always allow selection', () => {
+  it('should allow selection only when correct player is active', () => {
     const service: GameManagerService = TestBed.get(GameManagerService);
-    expect(service.isSelectionAllowed(PawnTypes.NONE)).toBeTruthy();
+    const instance = service as any;
+    instance.activePlayer = ActivePlayer.PLAYER1;
+    expect(service.isSelectionAllowed(PawnTypes.NONE)).toBeFalsy();
     expect(service.isSelectionAllowed(PawnTypes.PL1_PAWN)).toBeTruthy();
     expect(service.isSelectionAllowed(PawnTypes.PL1_QUEEN)).toBeTruthy();
+    expect(service.isSelectionAllowed(PawnTypes.PL2_PAWN)).toBeFalsy();
+    expect(service.isSelectionAllowed(PawnTypes.PL2_QUEEN)).toBeFalsy();
+    instance.activePlayer = ActivePlayer.PLAYER2;
+    expect(service.isSelectionAllowed(PawnTypes.NONE)).toBeFalsy();
+    expect(service.isSelectionAllowed(PawnTypes.PL1_PAWN)).toBeFalsy();
+    expect(service.isSelectionAllowed(PawnTypes.PL1_QUEEN)).toBeFalsy();
     expect(service.isSelectionAllowed(PawnTypes.PL2_PAWN)).toBeTruthy();
     expect(service.isSelectionAllowed(PawnTypes.PL2_QUEEN)).toBeTruthy();
   });
@@ -59,5 +80,31 @@ describe('GameManagerService', () => {
     ])
   });
 
+  it('should notify about turn change every 2 seconds', fakeAsync(() => {
+    let counter = 0;
+    let counter2 = 0;
+    const service: GameManagerService = TestBed.get(GameManagerService);
+    const subscription = service.subscribeOnTurnChange(() => {
+      counter++;
+    });
+    const subscription2 = service.subscribeOnTurnChange(() => {
+      counter2++;
+    });
+
+    tick(1);
+    expect(counter).toBe(1);
+    expect(counter2).toBe(1);
+    tick(2000);
+    expect(counter).toBe(2);
+    expect(counter2).toBe(2);
+    subscription.unsubscribe();
+    tick(2000);
+    expect(counter).toBe(2);
+    expect(counter2).toBe(3);
+    subscription2.unsubscribe();
+    tick(2000);
+    expect(counter).toBe(2);
+    expect(counter2).toBe(3);
+  }))
 
 });

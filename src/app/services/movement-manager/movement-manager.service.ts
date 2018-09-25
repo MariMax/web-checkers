@@ -1,3 +1,4 @@
+import { GameManagerService } from './../game-manager/game-manager.service';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -5,5 +6,16 @@ import { Injectable } from '@angular/core';
 })
 export class MovementManagerService {
 
-  constructor() { }
+  constructor(private gameManager: GameManagerService) { 
+    this.onTurnChange = this.onTurnChange.bind(this);
+    this.gameManager.subscribeOnTurnChange(this.onTurnChange);
+  }
+
+  private onTurnChange() {
+    this.findPawnsAvailableToMove();
+  }
+
+  private findPawnsAvailableToMove() {
+    
+  }
 }

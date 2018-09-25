@@ -82,7 +82,6 @@ export class PawnManagerComponent implements OnInit, OnChanges {
       return;
     }
     this.selectedPawn = null;
-    console.log(col, row, pawnType);
     this.changeDetector.detectChanges();
   }
 
