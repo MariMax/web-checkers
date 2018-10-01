@@ -31,6 +31,10 @@ export class GameManagerService {
     return this.activePlayer === pawnModel.owner;
   }
 
+  public getMovementDirection(): number {
+    return this.activePlayer === PlayerType.PLAYER1 ? -1 : 1;
+  }
+
   public getPawnModelAtLocation(x: number, y: number): PawnModel {
     return this.boardState[y * BOARD_SIZE + x];
   }

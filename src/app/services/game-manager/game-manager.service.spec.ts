@@ -39,6 +39,15 @@ describe('GameManagerService', () => {
     expect(service.isSelectionAllowed(p2Pawn)).toBeTruthy();
   });
 
+  it('should return correct movement direction for active player', () => {
+    const service: GameManagerService = TestBed.get(GameManagerService);
+    const instance = service as any;
+    instance.activePlayer = PlayerType.PLAYER1;
+    expect(service.getMovementDirection()).toBe(-1);
+    instance.activePlayer = PlayerType.PLAYER2;
+    expect(service.getMovementDirection()).toBe(1);
+  });
+
   it('should generate correct initial state', () => {
     const service: GameManagerService = TestBed.get(GameManagerService);
     const instance = service as any;

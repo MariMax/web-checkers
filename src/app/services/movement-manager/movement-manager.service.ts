@@ -1,12 +1,14 @@
 import {Position} from './../game-manager/position';
 import {GameManagerService} from './../game-manager/game-manager.service';
 import {Injectable} from '@angular/core';
-import {PawnTypes} from '../game-manager/pawn-types.enum';
+import { PawnModel } from '../../data-structures/pawn/pawn.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MovementManagerService {
+  private pawnsAvailableToMoveThisRound: PawnModel[] = [];
+
   constructor(private gameManager: GameManagerService) {
     this.onTurnChange = this.onTurnChange.bind(this);
     this.gameManager.subscribeOnTurnChange(this.onTurnChange);
@@ -18,10 +20,10 @@ export class MovementManagerService {
 
   private findPawnsAvailableToMove() {
     const locations: Position[] = this.gameManager.getPawnLocations();
-    // const pawnsOfCurrentActivePlayer: PawnTypes[] = locations
-    //   .map(i => this.gameManager.getPawnTypeAtLocation(i.x, i.y))
-    //   .filter(pawnType => this.gameManager.isSelectionAllowed(pawnType));
-    
+    const pawnsOfCurrentActivePlayer: PawnModel[] = locations
+      .map(i => this.gameManager.getPawnModelAtLocation(i.x, i.y))
+      .filter(pawnModel => this.gameManager.isSelectionAllowed(pawnModel));
+    const movementDirection = this.gameManager.getMovementDirection();
 
   }
 }
