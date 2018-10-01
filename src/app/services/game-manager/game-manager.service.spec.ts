@@ -1,23 +1,12 @@
-import { ActivePlayer } from './active-player.enum';
+import { PlayerType } from './active-player.enum';
 import { PawnTypes } from './pawn-types.enum';
-import { TestBed, fakeAsync, tick as _tick } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick} from '@angular/core/testing';
 
 import { GameManagerService, BOARD_SIZE } from './game-manager.service';
 import { asyncScheduler } from 'rxjs';
+import { PawnModel } from '../../data-structures/pawn/pawn.model';
 
 describe('GameManagerService', () => {
-  let tick: (milliseconds: number) => void;
-
-  beforeEach(() => {
-    let fakeNow = 0;
-    tick = milliseconds => {
-      fakeNow += milliseconds;
-      _tick(milliseconds);
-    };
-    asyncScheduler.now = () => fakeNow;
-  });
-
-  afterEach(() => delete asyncScheduler.now)
 
   it('should be created', () => {
     const service: GameManagerService = TestBed.get(GameManagerService);
@@ -29,41 +18,61 @@ describe('GameManagerService', () => {
     const flattenBoard = [];
     for (let i = 0; i < BOARD_SIZE; i++) {
       for (let j = 0; j < BOARD_SIZE; j++) {
-        flattenBoard.push(service.getPawnTypeAtLocation(i, j));
+        flattenBoard.push(service.getPawnModelAtLocation(i, j));
       }
     }
-    expect(flattenBoard.every(i => i === PawnTypes.NONE));
+    expect(flattenBoard.every(i => i === null));
   });
 
   it('should allow selection only when correct player is active', () => {
     const service: GameManagerService = TestBed.get(GameManagerService);
     const instance = service as any;
-    instance.activePlayer = ActivePlayer.PLAYER1;
-    expect(service.isSelectionAllowed(PawnTypes.NONE)).toBeFalsy();
-    expect(service.isSelectionAllowed(PawnTypes.PL1_PAWN)).toBeTruthy();
-    expect(service.isSelectionAllowed(PawnTypes.PL1_QUEEN)).toBeTruthy();
-    expect(service.isSelectionAllowed(PawnTypes.PL2_PAWN)).toBeFalsy();
-    expect(service.isSelectionAllowed(PawnTypes.PL2_QUEEN)).toBeFalsy();
-    instance.activePlayer = ActivePlayer.PLAYER2;
-    expect(service.isSelectionAllowed(PawnTypes.NONE)).toBeFalsy();
-    expect(service.isSelectionAllowed(PawnTypes.PL1_PAWN)).toBeFalsy();
-    expect(service.isSelectionAllowed(PawnTypes.PL1_QUEEN)).toBeFalsy();
-    expect(service.isSelectionAllowed(PawnTypes.PL2_PAWN)).toBeTruthy();
-    expect(service.isSelectionAllowed(PawnTypes.PL2_QUEEN)).toBeTruthy();
+    const p1Pawn = new PawnModel();
+    p1Pawn.owner = PlayerType.PLAYER1;
+    const p2Pawn = new PawnModel();
+    p2Pawn.owner = PlayerType.PLAYER2;
+    instance.activePlayer = PlayerType.PLAYER1;
+    expect(service.isSelectionAllowed(p2Pawn)).toBeFalsy();
+    expect(service.isSelectionAllowed(p1Pawn)).toBeTruthy();
+    instance.activePlayer = PlayerType.PLAYER2;
+    expect(service.isSelectionAllowed(p1Pawn)).toBeFalsy();
+    expect(service.isSelectionAllowed(p2Pawn)).toBeTruthy();
   });
 
   it('should generate correct initial state', () => {
     const service: GameManagerService = TestBed.get(GameManagerService);
     const instance = service as any;
     service.initGame();
-    expect(instance.boardState).toEqual([0,2,0,2,0,2,0,2,
-                                         2,0,2,0,2,0,2,0,
-                                         0,2,0,2,0,2,0,2,
-                                         0,0,0,0,0,0,0,0,
-                                         0,0,0,0,0,0,0,0,
-                                         1,0,1,0,1,0,1,0,
-                                         0,1,0,1,0,1,0,1,
-                                         1,0,1,0,1,0,1,0])
+    const p1Pawns = new Array(12)
+      .fill(null)
+      .map((x, index) => {
+        const pawn = new PawnModel();
+        pawn.owner = PlayerType.PLAYER1;
+        pawn.currentRow = 5 + Math.floor(index / 4);
+        pawn.currentCol = (index % 4) * 2 + 1 - (pawn.currentRow % 2);
+        pawn.type = PawnTypes.PAWN;
+        return pawn;
+      })
+
+    const p2Pawns = new Array(12)
+      .fill(null)
+      .map((x, index) => {
+        const pawn = new PawnModel();
+        pawn.owner = PlayerType.PLAYER2;
+        pawn.currentRow = Math.floor(index / 4);
+        pawn.currentCol = (index % 4) * 2 + 1 - (pawn.currentRow % 2);
+        pawn.type = PawnTypes.PAWN;
+        return pawn;
+      });
+
+    expect(instance.boardState).toEqual([null, p2Pawns[0], null, p2Pawns[1], null, p2Pawns[2], null, p2Pawns[3], 
+                                          p2Pawns[4], null, p2Pawns[5], null, p2Pawns[6], null, p2Pawns[7], null,
+                                         null, p2Pawns[8], null, p2Pawns[9], null, p2Pawns[10], null, p2Pawns[11], 
+                                         null,null,null,null,null,null,null,null,
+                                         null,null,null,null,null,null,null,null,
+                                         p1Pawns[0], null, p1Pawns[1], null, p1Pawns[2], null, p1Pawns[3], null,
+                                         null, p1Pawns[4], null, p1Pawns[5], null, p1Pawns[6], null, p1Pawns[7], 
+                                         p1Pawns[8], null, p1Pawns[9], null, p1Pawns[10], null, p1Pawns[11], null])
   });
 
   it('should return all the taken positions on the poard', () => {
@@ -83,6 +92,7 @@ describe('GameManagerService', () => {
   it('should notify about turn change every 2 seconds', fakeAsync(() => {
     let counter = 0;
     let counter2 = 0;
+    let counter3 = 0;
     const service: GameManagerService = TestBed.get(GameManagerService);
     const subscription = service.subscribeOnTurnChange(() => {
       counter++;
@@ -105,6 +115,14 @@ describe('GameManagerService', () => {
     tick(2000);
     expect(counter).toBe(2);
     expect(counter2).toBe(3);
+    const subscription3 = service.subscribeOnTurnChange(() => {
+      counter3++;
+    });
+    tick(1);
+    expect(counter).toBe(2);
+    expect(counter2).toBe(3);
+    expect(counter3).toBe(1);
+    subscription3.unsubscribe();
   }))
 
 });

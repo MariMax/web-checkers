@@ -1,4 +1,5 @@
-import {ActivePlayer} from './active-player.enum';
+import { PawnModel } from './../../data-structures/pawn/pawn.model';
+import {PlayerType} from './active-player.enum';
 import {Injectable} from '@angular/core';
 import {PawnTypes} from './pawn-types.enum';
 import {Position} from './position';
@@ -12,33 +13,25 @@ export const MAX_NUMBER_OF_PAWNS = 12;
   providedIn: 'root',
 })
 export class GameManagerService {
-  private boardState: PawnTypes[] = [];
+  private boardState: PawnModel[] = [];
   private turnChange = new Subject<void>();
-  private activePlayer: ActivePlayer;
-  private timer: Observable<number>;
-  private timerSubscription = new Subscription();
-  private allSubscriptions: Subscription[] = [];
+  private activePlayer: PlayerType;
+  private timerSubscription: Subscription;
 
   constructor() {
     for (let i = 0; i < BOARD_SIZE; i++) {
       for (let j = 0; j < BOARD_SIZE; j++) {
-        this.boardState.push(PawnTypes.NONE);
+        this.boardState.push(null);
       }
     }
-    this.activePlayer = ActivePlayer.PLAYER1;
+    this.activePlayer = PlayerType.PLAYER1;
   }
 
-  public isSelectionAllowed(pawnType: PawnTypes): boolean {
-    if (this.activePlayer === ActivePlayer.PLAYER1) {
-      return (
-        pawnType === PawnTypes.PL1_PAWN || pawnType === PawnTypes.PL1_QUEEN
-      );
-    }
-    //this is PLAYER2
-    return pawnType === PawnTypes.PL2_PAWN || pawnType === PawnTypes.PL2_QUEEN;
+  public isSelectionAllowed(pawnModel: PawnModel): boolean {
+    return this.activePlayer === pawnModel.owner;
   }
 
-  public getPawnTypeAtLocation(x: number, y: number): PawnTypes {
+  public getPawnModelAtLocation(x: number, y: number): PawnModel {
     return this.boardState[y * BOARD_SIZE + x];
   }
 
@@ -46,17 +39,22 @@ export class GameManagerService {
     this.generateDefaultStateForBoard();
   }
 
-  private generateDefaultStateForType(startRow: number, type: PawnTypes) {
+  private generateDefaultStateForType(startRow: number, player: PlayerType) {
     for (let i = 0; i < MAX_NUMBER_OF_PAWNS; i++) {
       const row = Math.floor(i / HALF_BOARD_SIZE) + startRow;
       const column = (i % HALF_BOARD_SIZE) * 2 + 1 - (row % 2);
-      this.boardState[row * BOARD_SIZE + column] = type;
+      const pawnModel = new PawnModel();
+      pawnModel.currentCol = column;
+      pawnModel.currentRow = row;
+      pawnModel.owner = player;
+      pawnModel.type = PawnTypes.PAWN;
+      this.boardState[row * BOARD_SIZE + column] = pawnModel;
     }
   }
 
   private generateDefaultStateForBoard() {
-    this.generateDefaultStateForType(0, PawnTypes.PL2_PAWN);
-    this.generateDefaultStateForType(5, PawnTypes.PL1_PAWN);
+    this.generateDefaultStateForType(0, PlayerType.PLAYER2);
+    this.generateDefaultStateForType(5, PlayerType.PLAYER1);
   }
 
   private get2dFromIndex(i: number): Position {
@@ -66,28 +64,25 @@ export class GameManagerService {
   public getPawnLocations(): Position[] {
     return this.boardState
       .map((i, index) => {
-        if (i !== PawnTypes.NONE) return this.get2dFromIndex(index);
+        if (i !== null) {
+          return this.get2dFromIndex(index);
+        }
         return null;
       })
       .filter(i => i !== null);
   }
 
   public subscribeOnTurnChange(fn: () => void): Subscription {
-    if (!this.timer || this.timerSubscription.closed) {
+    if (!this.timerSubscription || this.timerSubscription.closed) {
       this.timerSubscription = new Subscription();
-      this.timer = timer(0, 2000);
-      this.timerSubscription.add(this.timer.subscribe(() => this.turnChange.next()));
+      this.timerSubscription.add(timer(0, 2000).subscribe(() => this.turnChange.next()));
     }
-    const s = this.timer.subscribe(fn);
-    this.allSubscriptions.push(s);
-    const s2 = this.timerSubscription.add(() => {
+    const s = this.turnChange.subscribe(fn);
+    return this.timerSubscription.add(() => {
       s.unsubscribe();
-      this.timerSubscription.remove(s2);
-      this.allSubscriptions = this.allSubscriptions.filter(i => i !== s);
-      if (this.allSubscriptions.length === 0) {
+      if (this.turnChange.observers.length === 0) {
         this.timerSubscription.unsubscribe();
       }
     });
-    return s2;
   }
 }

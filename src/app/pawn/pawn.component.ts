@@ -1,3 +1,4 @@
+import { PawnComponentBase } from './../data-structures/pawn-component-base/pawn-component.base';
 import {
   Component,
   Renderer2,
@@ -7,7 +8,6 @@ import {
   ChangeDetectionStrategy,
   OnChanges,
 } from '@angular/core';
-import {Pawn} from '../data-structures/pawn/pawn';
 
 @Component({
   selector: 'web-checkers-pawn',
@@ -15,7 +15,7 @@ import {Pawn} from '../data-structures/pawn/pawn';
   styleUrls: ['./pawn.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PawnComponent extends Pawn implements OnChanges {
+export class PawnComponent extends PawnComponentBase implements OnChanges {
   @Input()
   isSelected = false;
   @Input()
@@ -31,7 +31,7 @@ export class PawnComponent extends Pawn implements OnChanges {
   pawn: ElementRef<HTMLDivElement>;
 
   constructor(private renderer: Renderer2) {
-    super();
+    super() /* istanbul ignore next */;
   }
 
   ngOnChanges() {

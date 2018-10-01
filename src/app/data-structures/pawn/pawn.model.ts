@@ -1,11 +1,10 @@
+import { PlayerType } from '../../services/game-manager/active-player.enum';
 import { Input } from '@angular/core';
 import { PawnTypes } from '../../services/game-manager/pawn-types.enum';
 
-export class Pawn {
-  @Input() color = 'white';
-  @Input() left = '0%';
-  @Input() top = '0%';
+export class PawnModel {
   type: PawnTypes;
+  owner: PlayerType;
   currentCol: number;
   currentRow: number;
 }

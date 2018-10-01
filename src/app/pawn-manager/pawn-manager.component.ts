@@ -1,4 +1,6 @@
-import { HALF_BOARD_SIZE, GameManagerService } from './../services/game-manager/game-manager.service';
+import { PawnComponentBase } from './../data-structures/pawn-component-base/pawn-component.base';
+import { PlayerType } from './../services/game-manager/active-player.enum';
+import { GameManagerService } from './../services/game-manager/game-manager.service';
 import {
   Component,
   OnInit,
@@ -6,12 +8,9 @@ import {
   ChangeDetectionStrategy,
   OnChanges,
   SimpleChanges,
-  HostBinding,
   HostListener,
   ChangeDetectorRef,
 } from '@angular/core';
-import {Pawn} from '../data-structures/pawn/pawn';
-import { MAX_NUMBER_OF_PAWNS } from '../services/game-manager/game-manager.service';
 import { PawnTypes } from '../services/game-manager/pawn-types.enum';
 
 @Component({
@@ -30,14 +29,14 @@ export class PawnManagerComponent implements OnInit, OnChanges {
     return this._size;
   }
 
-  public pawns: Pawn[] = [];
-  private selectedPawn: Pawn = null;
+  public pawns: PawnComponentBase[] = [];
+  private selectedPawn: PawnComponentBase = null;
 
   constructor(private gameManager: GameManagerService,
               private changeDetector: ChangeDetectorRef) {
   }
 
-  private adjustPawnPosition(pawn: Pawn): Pawn {
+  private adjustPawnPosition(pawn: PawnComponentBase): PawnComponentBase {
     const col = pawn.currentCol;
     const row = pawn.currentRow;
     const left = parseFloat(this.size) * col;
@@ -51,16 +50,15 @@ export class PawnManagerComponent implements OnInit, OnChanges {
     const locations = this.gameManager.getPawnLocations();
     this.pawns = locations
     .map(i => {
-      const type = this.gameManager.getPawnTypeAtLocation(i.x, i.y);
-      if (type === PawnTypes.NONE) {
+      const pawn = this.gameManager.getPawnModelAtLocation(i.x, i.y);
+      if (pawn === null) {
         return null;
       }
-      const pawn = new Pawn();
-      pawn.color = [PawnTypes.PL1_PAWN, PawnTypes.PL1_QUEEN].includes(type) ? 'white' : 'black';
-      pawn.currentCol = i.x;
-      pawn.currentRow = i.y;
-      pawn.type = type;
-      return this.adjustPawnPosition(pawn);
+
+      const basePawn = {...pawn} as PawnComponentBase;
+      basePawn.color = pawn.owner === PlayerType.PLAYER1 ? 'white' : 'black';
+
+      return this.adjustPawnPosition(basePawn);
     })
     .filter(i => i !== null);
   }
@@ -75,9 +73,9 @@ export class PawnManagerComponent implements OnInit, OnChanges {
   private onClick(event: MouseEvent) {
     const col = Math.floor(event.offsetX / parseFloat(this.size));
     const row = Math.floor(event.offsetY / parseFloat(this.size));
-    const pawnType = this.gameManager.getPawnTypeAtLocation(col, row);
-    if (pawnType !== PawnTypes.NONE && this.gameManager.isSelectionAllowed(pawnType)) {
-      this.selectedPawn = this.pawns.find(i => i.type === pawnType && i.currentCol === col && i.currentRow === row);
+    const pawnModel = this.gameManager.getPawnModelAtLocation(col, row);
+    if (pawnModel && this.gameManager.isSelectionAllowed(pawnModel)) {
+      this.selectedPawn = this.pawns.find(i => i.type === pawnModel.type && i.currentCol === col && i.currentRow === row);
       this.changeDetector.detectChanges();
       return;
     }
@@ -85,7 +83,7 @@ export class PawnManagerComponent implements OnInit, OnChanges {
     this.changeDetector.detectChanges();
   }
 
-  public isSelected(pawn: Pawn) {
+  public isSelected(pawn: PawnComponentBase) {
     return this.selectedPawn === pawn;
   }
 }
