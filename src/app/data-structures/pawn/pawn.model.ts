@@ -7,4 +7,5 @@ export class PawnModel {
   owner: PlayerType;
   currentCol: number;
   currentRow: number;
+  deleted = false;
 }

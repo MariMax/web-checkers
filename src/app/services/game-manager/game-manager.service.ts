@@ -3,7 +3,8 @@ import {PlayerType} from './active-player.enum';
 import {Injectable} from '@angular/core';
 import {PawnTypes} from './pawn-types.enum';
 import {Position} from './position';
-import {Subject, Subscription, timer, Observable, PartialObserver} from 'rxjs';
+import {Subject, Subscription, timer} from 'rxjs';
+import {first} from 'rxjs/operators';
 
 export const BOARD_SIZE = 8;
 export const HALF_BOARD_SIZE = 4;
@@ -25,6 +26,20 @@ export class GameManagerService {
       }
     }
     this.activePlayer = PlayerType.PLAYER1;
+    this.turnChangeHandler = this.turnChangeHandler.bind(this);
+    this.subscribeOnTurnChange(this.turnChangeHandler);
+  }
+
+  public changeTurn() {
+    this.turnChange.next();
+  }
+
+  private turnChangeHandler() {
+    if (this.activePlayer === PlayerType.PLAYER1) {
+      this.activePlayer = PlayerType.PLAYER2;
+    } else {
+      this.activePlayer = PlayerType.PLAYER1;
+    }
   }
 
   public isSelectionAllowed(pawnModel: PawnModel): boolean {
@@ -35,8 +50,8 @@ export class GameManagerService {
     return this.activePlayer === PlayerType.PLAYER1 ? -1 : 1;
   }
 
-  public getPawnModelAtLocation(x: number, y: number): PawnModel {
-    return this.boardState[y * BOARD_SIZE + x];
+  public getPawnModelAtLocation(position: Position): PawnModel {
+    return this.boardState[position.y * BOARD_SIZE + position.x];
   }
 
   public initGame() {
@@ -62,7 +77,7 @@ export class GameManagerService {
   }
 
   private get2dFromIndex(i: number): Position {
-    return {y: Math.floor(i / BOARD_SIZE), x: i % BOARD_SIZE};
+    return new Position(i % BOARD_SIZE, Math.floor(i / BOARD_SIZE));
   }
 
   public getPawnLocations(): Position[] {
@@ -79,7 +94,6 @@ export class GameManagerService {
   public subscribeOnTurnChange(fn: () => void): Subscription {
     if (!this.timerSubscription || this.timerSubscription.closed) {
       this.timerSubscription = new Subscription();
-      this.timerSubscription.add(timer(0, 2000).subscribe(() => this.turnChange.next()));
     }
     const s = this.turnChange.subscribe(fn);
     return this.timerSubscription.add(() => {

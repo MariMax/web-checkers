@@ -1,3 +1,4 @@
+import { Position } from './../services/game-manager/position';
 import { PawnComponentBase } from './../data-structures/pawn-component-base/pawn-component.base';
 import { GameManagerService } from './../services/game-manager/game-manager.service';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
@@ -46,14 +47,14 @@ describe('PawnManagerComponent', () => {
     expect(component).toBeTruthy();
   });
   
-  it('should get pawns locations from gameManager and generate them based on types', () => {
+  it('should get pawns locations from gameManager and generate pawns based on types', () => {
     const getLocationsSpy = spyOn(gameManager, 'getPawnLocations').and.returnValue([
       {x: 1, y: 0},
       {x: 0, y: 7},
       {x: 3, y: 1}
     ]);
-    const getPawnTypeSpy = spyOn(gameManager, 'getPawnModelAtLocation').and.callFake((x, y) => {
-      switch (x) {
+    const getPawnTypeSpy = spyOn(gameManager, 'getPawnModelAtLocation').and.callFake((position: Position) => {
+      switch (position.x) {
         case 1: {
           const pawn = new PawnComponentBase();
           pawn.owner = PlayerType.PLAYER1;
@@ -120,7 +121,7 @@ describe('PawnManagerComponent', () => {
         offsetX: 150,
         offsetY: 50
       });
-      expect(getPawnTypeSpy).toHaveBeenCalledWith(1, 0);
+      expect(getPawnTypeSpy).toHaveBeenCalledWith(new Position(1, 0));
     });
 
     it('if there is no pawn selectedPawn should be null', async () => {

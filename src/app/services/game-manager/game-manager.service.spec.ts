@@ -5,6 +5,7 @@ import { TestBed, fakeAsync, tick} from '@angular/core/testing';
 import { GameManagerService, BOARD_SIZE } from './game-manager.service';
 import { asyncScheduler } from 'rxjs';
 import { PawnModel } from '../../data-structures/pawn/pawn.model';
+import { Position } from './position';
 
 describe('GameManagerService', () => {
 
@@ -18,7 +19,7 @@ describe('GameManagerService', () => {
     const flattenBoard = [];
     for (let i = 0; i < BOARD_SIZE; i++) {
       for (let j = 0; j < BOARD_SIZE; j++) {
-        flattenBoard.push(service.getPawnModelAtLocation(i, j));
+        flattenBoard.push(service.getPawnModelAtLocation(new Position(i, j)));
       }
     }
     expect(flattenBoard.every(i => i === null));
@@ -89,12 +90,12 @@ describe('GameManagerService', () => {
     service.initGame();
     const allLocations = service.getPawnLocations();
     expect(allLocations).toEqual([
-      {x: 1, y: 0},{x: 3, y: 0},{x: 5, y: 0},{x: 7, y: 0},
-      {x: 0, y: 1},{x: 2, y: 1},{x: 4, y: 1},{x: 6, y: 1},
-      {x: 1, y: 2},{x: 3, y: 2},{x: 5, y: 2},{x: 7, y: 2},
-      {x: 0, y: 5},{x: 2, y: 5},{x: 4, y: 5},{x: 6, y: 5},
-      {x: 1, y: 6},{x: 3, y: 6},{x: 5, y: 6},{x: 7, y: 6},
-      {x: 0, y: 7},{x: 2, y: 7},{x: 4, y: 7},{x: 6, y: 7},
+      new Position(1, 0),new Position(3, 0),new Position(5, 0),new Position(7, 0),
+      new Position(0, 1),new Position(2, 1),new Position(4, 1),new Position(6, 1),
+      new Position(1, 2),new Position(3, 2),new Position(5, 2),new Position(7, 2),
+      new Position(0, 5),new Position(2, 5),new Position(4, 5),new Position(6, 5),
+      new Position(1, 6),new Position(3, 6),new Position(5, 6),new Position(7, 6),
+      new Position(0, 7),new Position(2, 7),new Position(4, 7),new Position(6, 7),
     ])
   });
 

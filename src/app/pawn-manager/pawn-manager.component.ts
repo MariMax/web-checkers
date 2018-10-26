@@ -1,6 +1,8 @@
-import { PawnComponentBase } from './../data-structures/pawn-component-base/pawn-component.base';
-import { PlayerType } from './../services/game-manager/active-player.enum';
-import { GameManagerService } from './../services/game-manager/game-manager.service';
+import {Subscription} from 'rxjs';
+import {PawnModel} from './../data-structures/pawn/pawn.model';
+import {PawnComponentBase} from './../data-structures/pawn-component-base/pawn-component.base';
+import {PlayerType} from './../services/game-manager/active-player.enum';
+import {GameManagerService} from './../services/game-manager/game-manager.service';
 import {
   Component,
   OnInit,
@@ -10,8 +12,10 @@ import {
   SimpleChanges,
   HostListener,
   ChangeDetectorRef,
+  OnDestroy,
 } from '@angular/core';
-import { PawnTypes } from '../services/game-manager/pawn-types.enum';
+import {Position} from '../services/game-manager/position';
+import {MovementManagerService} from '../services/movement-manager/movement-manager.service';
 
 @Component({
   selector: 'web-checkers-pawn-manager',
@@ -19,7 +23,9 @@ import { PawnTypes } from '../services/game-manager/pawn-types.enum';
   styleUrls: ['./pawn-manager.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PawnManagerComponent implements OnInit, OnChanges {
+export class PawnManagerComponent implements OnInit, OnChanges, OnDestroy {
+  private movementCalcularedSubscrition: Subscription;
+  private pawnAllowedToMove: PawnModel[] = [];
   private _size = '100px';
   @Input()
   public set size(value: string) {
@@ -32,8 +38,12 @@ export class PawnManagerComponent implements OnInit, OnChanges {
   public pawns: PawnComponentBase[] = [];
   private selectedPawn: PawnComponentBase = null;
 
-  constructor(private gameManager: GameManagerService,
-              private changeDetector: ChangeDetectorRef) {
+  constructor(
+    private gameManager: GameManagerService,
+    private movementManager: MovementManagerService,
+    private changeDetector: ChangeDetectorRef,
+  ) {
+    this.onCalcAvailableMovesCompleted = this.onCalcAvailableMovesCompleted.bind(this);
   }
 
   private adjustPawnPosition(pawn: PawnComponentBase): PawnComponentBase {
@@ -47,20 +57,27 @@ export class PawnManagerComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    const locations = this.gameManager.getPawnLocations();
+    const locations: Position[] = this.gameManager.getPawnLocations();
+    this.movementCalcularedSubscrition = this.movementManager.subscribeOnCompleteMovesCalculation(
+      this.onCalcAvailableMovesCompleted,
+    );
     this.pawns = locations
-    .map(i => {
-      const pawn = this.gameManager.getPawnModelAtLocation(i.x, i.y);
-      if (pawn === null) {
-        return null;
-      }
+      .map(i => {
+        const pawn = this.gameManager.getPawnModelAtLocation(i);
+        if (pawn === null) {
+          return null;
+        }
 
-      const basePawn = {...pawn} as PawnComponentBase;
-      basePawn.color = pawn.owner === PlayerType.PLAYER1 ? 'white' : 'black';
+        const basePawn = {...pawn} as PawnComponentBase;
+        basePawn.color = pawn.owner === PlayerType.PLAYER1 ? 'white' : 'black';
 
-      return this.adjustPawnPosition(basePawn);
-    })
-    .filter(i => i !== null);
+        return this.adjustPawnPosition(basePawn);
+      })
+      .filter(i => i !== null);
+  }
+
+  ngOnDestroy() {
+    this.movementCalcularedSubscrition.unsubscribe();
   }
 
   ngOnChanges(simpleChanges: SimpleChanges) {
@@ -69,13 +86,30 @@ export class PawnManagerComponent implements OnInit, OnChanges {
     }
   }
 
+  private onCalcAvailableMovesCompleted(pawnsAllowedToMove: PawnModel[]) {
+    this.pawnAllowedToMove = pawnsAllowedToMove;
+    this.selectedPawn = null;
+    this.changeDetector.detectChanges();
+  }
+
   @HostListener('click', ['$event'])
   private onClick(event: MouseEvent) {
     const col = Math.floor(event.offsetX / parseFloat(this.size));
     const row = Math.floor(event.offsetY / parseFloat(this.size));
-    const pawnModel = this.gameManager.getPawnModelAtLocation(col, row);
-    if (pawnModel && this.gameManager.isSelectionAllowed(pawnModel)) {
-      this.selectedPawn = this.pawns.find(i => i.type === pawnModel.type && i.currentCol === col && i.currentRow === row);
+    const pawnModel = this.gameManager.getPawnModelAtLocation(
+      new Position(col, row),
+    );
+    if (
+      pawnModel &&
+      this.gameManager.isSelectionAllowed(pawnModel) &&
+      this.pawnAllowedToMove.includes(pawnModel)
+    ) {
+      this.selectedPawn = this.pawns.find(
+        i =>
+          i.type === pawnModel.type &&
+          i.currentCol === col &&
+          i.currentRow === row,
+      );
       this.changeDetector.detectChanges();
       return;
     }
@@ -83,7 +117,12 @@ export class PawnManagerComponent implements OnInit, OnChanges {
     this.changeDetector.detectChanges();
   }
 
-  public isSelected(pawn: PawnComponentBase) {
+  public isSelected(pawn: PawnComponentBase): boolean {
     return this.selectedPawn === pawn;
+  }
+
+  public isAvailableToMove(item: PawnComponentBase): boolean {
+    const pawn = this.gameManager.getPawnModelAtLocation(new Position(item.currentCol, item.currentRow));
+    return this.pawnAllowedToMove.includes(pawn);
   }
 }

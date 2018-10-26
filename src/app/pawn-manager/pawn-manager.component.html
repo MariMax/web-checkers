@@ -50,6 +50,6 @@
 
 
 <ng-container *ngFor="let item of pawns">
-  <web-checkers-pawn [isSelected]="isSelected(item)" [color]="item.color" [size]="size"
-    [left]="item.left" [top]="item.top"></web-checkers-pawn>
+  <web-checkers-pawn [isAvailableToMove]="isAvailableToMove(item)" [isSelected]="isSelected(item)"
+    [color]="item.color" [size]="size" [left]="item.left" [top]="item.top"></web-checkers-pawn>
 </ng-container>
