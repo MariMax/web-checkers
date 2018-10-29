@@ -99,7 +99,7 @@ describe('GameManagerService', () => {
     ])
   });
 
-  it('should notify about turn change every 2 seconds', fakeAsync(() => {
+  it('should notify about turn change', fakeAsync(() => {
     let counter = 0;
     let counter2 = 0;
     let counter3 = 0;
@@ -111,26 +111,27 @@ describe('GameManagerService', () => {
       counter2++;
     });
 
-    tick(1);
+    service.changeTurn();
+    tick();
     expect(counter).toBe(1);
     expect(counter2).toBe(1);
-    tick(2000);
-    expect(counter).toBe(2);
-    expect(counter2).toBe(2);
     subscription.unsubscribe();
-    tick(2000);
-    expect(counter).toBe(2);
-    expect(counter2).toBe(3);
+    service.changeTurn();
+    tick();
+    expect(counter).toBe(1);
+    expect(counter2).toBe(2);
     subscription2.unsubscribe();
-    tick(2000);
-    expect(counter).toBe(2);
-    expect(counter2).toBe(3);
+    service.changeTurn();
+    tick();
+    expect(counter).toBe(1);
+    expect(counter2).toBe(2);
     const subscription3 = service.subscribeOnTurnChange(() => {
       counter3++;
     });
+    service.changeTurn();
     tick(1);
-    expect(counter).toBe(2);
-    expect(counter2).toBe(3);
+    expect(counter).toBe(1);
+    expect(counter2).toBe(2);
     expect(counter3).toBe(1);
     subscription3.unsubscribe();
   }))

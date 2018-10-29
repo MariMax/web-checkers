@@ -1,3 +1,4 @@
+<web-checkers-moves-manager class="pawn-manager" *ngIf="size" [size]="size"></web-checkers-moves-manager>
 <web-checkers-pawn-manager class="pawn-manager" *ngIf="size" [size]="size"></web-checkers-pawn-manager>
 
 <web-checkers-cell *ngFor="let item of topRow; let index = index" [isWhite]="true">

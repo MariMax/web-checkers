@@ -9,7 +9,7 @@ import {PawnTypes} from '../game-manager/pawn-types.enum';
 import {Position} from '../game-manager/position';
 import { Subscription, Subject } from 'rxjs';
 
-interface AvailableMove {
+export interface AvailableMove {
   pawn: PawnModel;
   position: Position;
   type: MovementType;
@@ -26,6 +26,8 @@ export class MovementManagerService {
   private availableMoves: AvailableMove[][] = [];
   private movesCalculated = new Subject<PawnModel[]>();
   private movesReadySubscription: Subscription;
+  private pawnSelected = new Subject<AvailableMove[][]>();
+  private pawnSelectedSubscription: Subscription;
 
   constructor(private gameManager: GameManagerService) {
     this.onTurnChange = this.onTurnChange.bind(this);
@@ -125,7 +127,7 @@ export class MovementManagerService {
       ...this.checkDirection(pawn, pawnPosition, 1, -1, QUEEN_DISTANCE, []),
       ...this.checkDirection(pawn, pawnPosition, -1, 1, QUEEN_DISTANCE, []),
       ...this.checkDirection(pawn, pawnPosition, -1, -1, QUEEN_DISTANCE, []),
-    ]
+    ];
   }
 
   private isCellBeyoundTheBoard(location: Position) {
@@ -337,6 +339,23 @@ export class MovementManagerService {
         this.movesReadySubscription.unsubscribe();
       }
     });
+  }
+
+  public subscribeOnExposeAvailableMoves(fn: (moves: AvailableMove[][]) => void): Subscription {
+    if (!this.pawnSelectedSubscription || this.pawnSelectedSubscription.closed) {
+      this.pawnSelectedSubscription = new Subscription();
+    }
+    const s = this.pawnSelected.subscribe(fn);
+    return this.pawnSelectedSubscription.add(() => {
+      s.unsubscribe();
+      if (this.pawnSelected.observers.length === 0) {
+        this.pawnSelectedSubscription.unsubscribe();
+      }
+    });
+  }
+
+  public selectAPawn(pawn: PawnModel) {
+    this.pawnSelected.next(this.getAvailableMovesForPawn(pawn));
   }
 
   public getAvailableMovesForPawn(pawn: PawnModel): AvailableMove[][] {

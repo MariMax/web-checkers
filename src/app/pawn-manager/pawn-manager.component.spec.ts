@@ -157,6 +157,7 @@ describe('PawnManagerComponent', () => {
 
       spyOn(gameManager, 'getPawnModelAtLocation').and.returnValue(pawn);
       (pawnManagerComponent.componentInstance as any).pawns.push(pawn);
+      (pawnManagerComponent.componentInstance as any).pawnAllowedToMove.push(pawn);
       const isSelectionAllowed = spyOn(gameManager, 'isSelectionAllowed').and.returnValue(true);
       pawnManagerComponent.triggerEventHandler('click', {
         offsetX: 50,

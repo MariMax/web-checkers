@@ -1,3 +1,4 @@
+import { MovesManagerComponentMock } from './../../moves-manager/moves-manager.component.spec';
 import {CellComponent} from './../cell/cell.component';
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 import { DebugElement, PLATFORM_ID } from '@angular/core';
@@ -15,7 +16,7 @@ describe('BoardComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [BoardComponent, CellComponent, PawnManagerComponentMock],
+      declarations: [BoardComponent, CellComponent, PawnManagerComponentMock, MovesManagerComponentMock],
     }).compileComponents();
   }));
 

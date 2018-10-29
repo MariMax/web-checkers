@@ -43,7 +43,9 @@ export class PawnManagerComponent implements OnInit, OnChanges, OnDestroy {
     private movementManager: MovementManagerService,
     private changeDetector: ChangeDetectorRef,
   ) {
-    this.onCalcAvailableMovesCompleted = this.onCalcAvailableMovesCompleted.bind(this);
+    this.onCalcAvailableMovesCompleted = this.onCalcAvailableMovesCompleted.bind(
+      this,
+    );
   }
 
   private adjustPawnPosition(pawn: PawnComponentBase): PawnComponentBase {
@@ -77,7 +79,9 @@ export class PawnManagerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.movementCalcularedSubscrition.unsubscribe();
+    if (this.movementCalcularedSubscrition) {
+      this.movementCalcularedSubscrition.unsubscribe();
+    }
   }
 
   ngOnChanges(simpleChanges: SimpleChanges) {
@@ -122,7 +126,9 @@ export class PawnManagerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public isAvailableToMove(item: PawnComponentBase): boolean {
-    const pawn = this.gameManager.getPawnModelAtLocation(new Position(item.currentCol, item.currentRow));
+    const pawn = this.gameManager.getPawnModelAtLocation(
+      new Position(item.currentCol, item.currentRow),
+    );
     return this.pawnAllowedToMove.includes(pawn);
   }
 }

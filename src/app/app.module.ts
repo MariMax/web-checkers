@@ -9,6 +9,7 @@ import { BoardComponent } from './components/board/board.component';
 import { CellComponent } from './components/cell/cell.component';
 import { PawnComponent } from './pawn/pawn.component';
 import { PawnManagerComponent } from './pawn-manager/pawn-manager.component';
+import { MovesManagerComponent } from './moves-manager/moves-manager.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { PawnManagerComponent } from './pawn-manager/pawn-manager.component';
     BoardComponent,
     CellComponent,
     PawnComponent,
-    PawnManagerComponent
+    PawnManagerComponent,
+    MovesManagerComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({appId: 'web-checkers'}),
